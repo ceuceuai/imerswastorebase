@@ -1,0 +1,24 @@
+import { ArrowRight, Bolt, Gift, Smartphone, Sparkles, Wifi, Zap } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import StoreHeader from '../components/StoreHeader'
+import ProductCard from '../components/ProductCard'
+import ProductQuickView from '../components/ProductQuickView'
+import Footer from '../components/Footer'
+import { useCatalog } from '../hooks/useCatalog'
+
+const digitalTypes = new Set(['digital','pulsa_data','pln_token','game_topup','ewallet','voucher'])
+export default function HomePage(){
+  const {products,categories,settings,error,loading}=useCatalog(); const [preview,setPreview]=useState(null); const [params]=useSearchParams(); const q=(params.get('q')||'').toLowerCase()
+  const filtered=useMemo(()=>products.filter(p=>!q || `${p.name} ${p.category?.name||''}`.toLowerCase().includes(q)),[products,q])
+  const featured=filtered.filter(p=>p.featured).slice(0,6); const physical=categories.filter(c=>c.group_type==='physical').slice(0,8); const digitalCats=categories.filter(c=>c.group_type==='digital').slice(0,8); const best=filtered.filter(p=>!digitalTypes.has(p.product_type)).slice(0,6); const digital=filtered.filter(p=>digitalTypes.has(p.product_type)).slice(0,6)
+  return <div className="store-page" style={{'--blue':settings.primary_color||'#0f67ff','--purple':settings.accent_color||'#7c3aed'}}><StoreHeader settings={settings}/>{error&&<div className="notice container-wide">{error}</div>}<main className="container-wide">
+    <section className="hero" style={{'--hero':`url(${settings.hero_image_url})`}}><div className="hero-content"><span className="hero-kicker"><Sparkles size={16}/> Marketplace modern & fleksibel</span><h1>{settings.hero_title}</h1><p>{settings.hero_subtitle}</p><a href={settings.hero_button_url||'#promo'} className="hero-btn">{settings.hero_button_text||'Belanja Sekarang'} <ArrowRight/></a></div><div className="hero-bubble"><b>Transaksi</b><span>Cepat & Aman</span><strong>24/7</strong></div></section>
+    <section id="promo" className="section"><div className="section-head"><div><h2>👑 Featured Promo</h2><span>Produk pilihan dengan penawaran terbaik.</span></div><a href="#all">Lihat Semua <ArrowRight size={16}/></a></div>{loading?<div className="loading-grid">Memuat produk...</div>:<div className="product-grid">{featured.map(p=><ProductCard key={p.id} product={p} onPreview={setPreview}/>)}</div>}</section>
+    <section className="category-split"><div className="category-panel physical-panel"><div className="section-head small"><h2>🛒 Kategori Produk Fisik</h2><a href="#physical">Lihat Semua →</a></div><div className="category-icons">{physical.map(c=><div key={c.id}><span>{c.image_url?<img src={c.image_url} alt={c.name}/>:c.icon||'📦'}</span><b>{c.name}</b></div>)}</div></div><div className="category-panel digital-panel"><div className="section-head small"><h2>🟣 Produk Digital & Pulsa</h2><a href="#digital">Lihat Semua →</a></div><div className="category-icons">{digitalCats.map(c=><div key={c.id}><span>{c.image_url?<img src={c.image_url} alt={c.name}/>:c.icon||'⚡'}</span><b>{c.name}</b></div>)}</div></div></section>
+    <section className="promo-banners"><div className="mini-banner flash"><div><h3>⚡ FLASH SALE</h3><p>Produk pilihan, harga spesial setiap hari.</p></div><Gift/></div><div className="mini-banner instant"><div><h3>Produk Digital<br/>Transaksi Instan</h3><p>Pulsa • Token PLN • Voucher • Paket Data</p></div><Smartphone/></div><div className="mini-banner member"><div><h3>Gabung Member</h3><p>Promo eksklusif, poin reward dan update produk.</p></div><Sparkles/></div></section>
+    <section id="physical" className="section"><div className="section-head"><div><h2>Produk Fisik</h2><span>Stok nyata, HPP & inventory siap terhubung.</span></div></div><div className="product-grid">{best.map(p=><ProductCard key={p.id} product={p} onPreview={setPreview}/>)}</div></section>
+    <section id="digital" className="section"><div className="section-head"><div><h2>Produk Digital & Transaksi</h2><span>Pulsa, paket data, token, top up dan produk digital dipisahkan dari fisik.</span></div></div><div className="digital-feature-row"><div><Wifi/><span>Paket Data</span></div><div><Zap/><span>Token PLN</span></div><div><Bolt/><span>Top Up</span></div><div><Smartphone/><span>Pulsa</span></div></div><div className="product-grid">{digital.map(p=><ProductCard key={p.id} product={p} onPreview={setPreview}/>)}</div></section>
+    <section id="all" className="section"><div className="section-head"><div><h2>{q?`Hasil pencarian: ${params.get('q')}`:'Produk Terbaru'}</h2><span>{filtered.length} produk ditemukan.</span></div></div><div className="product-grid">{filtered.map(p=><ProductCard key={p.id} product={p} onPreview={setPreview}/>)}</div></section>
+  </main><Footer settings={settings}/><ProductQuickView product={preview} onClose={()=>setPreview(null)}/></div>
+}

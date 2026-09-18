@@ -1,0 +1,4 @@
+import { BadgeCheck, Headphones, ShieldCheck, Truck } from 'lucide-react'
+export default function Footer({ settings }) {
+  return <footer id="footer"><div className="trust-strip container-wide"><div><ShieldCheck/><span><b>Transaksi Aman</b><small>100% Terpercaya</small></span></div><div><Truck/><span><b>Pengiriman Cepat</b><small>Ke Seluruh Indonesia</small></span></div><div><BadgeCheck/><span><b>Produk Original</b><small>Kualitas Terjamin</small></span></div><div><Headphones/><span><b>Layanan Pelanggan</b><small>Siap Membantu 24/7</small></span></div></div><div className="footer-main"><div className="container-wide footer-grid"><div><h3>{settings.store_name}</h3><p>{settings.tagline}</p></div><div><h4>Belanja</h4><a href="#physical">Produk Fisik</a><a href="#digital">Produk Digital</a></div><div><h4>Bantuan</h4><a href="/checkout">Checkout</a><a href="/login">Masuk</a></div></div><div className="footer-copy">{settings.footer_text}</div></div></footer>
+}
