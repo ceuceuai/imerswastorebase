@@ -1,7 +1,9 @@
 import React from 'react'
+import DOMPurify from 'dompurify'
 
 const urlRe = /https?:\/\/[^\s)]+/g
 const mdLinkRe = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g
+const looksLikeHtml = value => /<\/?[a-z][\s\S]*>/i.test(String(value || ''))
 
 function renderLine(line, key) {
   const chunks = []
@@ -28,5 +30,13 @@ function renderLine(line, key) {
 }
 
 export default function RichText({ text = '' }) {
-  return <div className="rich-text">{String(text).split('\n').map((line, idx) => <p key={idx}>{renderLine(line, idx)}</p>)}</div>
+  const raw = String(text || '')
+  if (looksLikeHtml(raw)) {
+    const clean = DOMPurify.sanitize(raw, {
+      USE_PROFILES: { html: true },
+      ADD_ATTR: ['target', 'rel'],
+    })
+    return <div className="rich-text rich-text-html ql-editor" dangerouslySetInnerHTML={{ __html: clean }} />
+  }
+  return <div className="rich-text">{raw.split('\n').map((line, idx) => <p key={idx}>{renderLine(line, idx)}</p>)}</div>
 }

@@ -1,10 +1,10 @@
-import { BarChart3, Boxes, LayoutDashboard, LogOut, Package, Settings, Store, Menu, X } from 'lucide-react'
+import { BarChart3, Boxes, FileText, LayoutDashboard, LogOut, Package, Settings, Store, Menu, X } from 'lucide-react'
 import { NavLink, Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { supabase, supabaseEnabled } from '../lib/supabase'
 
 const links = [
-  ['/owner', LayoutDashboard, 'Dashboard'], ['/owner/products', Package, 'Produk'], ['/owner/inventory', Boxes, 'Inventory & HPP'], ['/owner/reports', BarChart3, 'Profit Report'], ['/owner/settings', Settings, 'White Label'],
+  ['/owner', LayoutDashboard, 'Dashboard'], ['/owner/products', Package, 'Produk'], ['/owner/articles', FileText, 'Artikel & Blog'], ['/owner/inventory', Boxes, 'Inventory & HPP'], ['/owner/reports', BarChart3, 'Profit Report'], ['/owner/settings', Settings, 'White Label'],
 ]
 export default function DashboardShell({ children, title, subtitle }) {
   const [open,setOpen] = useState(false); const nav=useNavigate()

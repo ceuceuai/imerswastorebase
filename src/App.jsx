@@ -8,6 +8,9 @@ import OwnerProducts from './pages/OwnerProducts'
 import OwnerInventory from './pages/OwnerInventory'
 import OwnerReports from './pages/OwnerReports'
 import OwnerSettings from './pages/OwnerSettings'
+import ArticlesPage from './pages/ArticlesPage'
+import ArticleDetailPage from './pages/ArticleDetailPage'
+import OwnerArticles from './pages/OwnerArticles'
 import OwnerGuard from './components/OwnerGuard'
 
 const owner = element => <OwnerGuard>{element}</OwnerGuard>
@@ -16,12 +19,15 @@ export default function App(){
   return <BrowserRouter><CartProvider><Routes>
     <Route path="/" element={<HomePage/>}/>
     <Route path="/checkout" element={<CheckoutPage/>}/>
+    <Route path="/articles" element={<ArticlesPage/>}/>
+    <Route path="/article/:slug" element={<ArticleDetailPage/>}/>
     <Route path="/login" element={<LoginPage/>}/>
     <Route path="/owner" element={owner(<OwnerDashboard/>)}/>
     <Route path="/owner/products" element={owner(<OwnerProducts/>)}/>
     <Route path="/owner/inventory" element={owner(<OwnerInventory/>)}/>
     <Route path="/owner/reports" element={owner(<OwnerReports/>)}/>
     <Route path="/owner/settings" element={owner(<OwnerSettings/>)}/>
+    <Route path="/owner/articles" element={owner(<OwnerArticles/>)}/>
     <Route path="*" element={<Navigate to="/" replace/>}/>
   </Routes></CartProvider></BrowserRouter>
 }

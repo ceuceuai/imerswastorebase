@@ -5,11 +5,13 @@ import StoreHeader from '../components/StoreHeader'
 import ProductCard from '../components/ProductCard'
 import ProductQuickView from '../components/ProductQuickView'
 import Footer from '../components/Footer'
+import ArticleCard from '../components/ArticleCard'
 import { useCatalog } from '../hooks/useCatalog'
+import { useArticles } from '../hooks/useArticles'
 
 const digitalTypes = new Set(['digital','pulsa_data','pln_token','game_topup','ewallet','voucher'])
 export default function HomePage(){
-  const {products,categories,settings,error,loading}=useCatalog(); const [preview,setPreview]=useState(null); const [params]=useSearchParams(); const q=(params.get('q')||'').toLowerCase()
+  const {products,categories,settings,error,loading}=useCatalog(); const {articles,loading:articlesLoading}=useArticles({limit:3}); const [preview,setPreview]=useState(null); const [params]=useSearchParams(); const q=(params.get('q')||'').toLowerCase()
   const filtered=useMemo(()=>products.filter(p=>!q || `${p.name} ${p.category?.name||''}`.toLowerCase().includes(q)),[products,q])
   const featured=filtered.filter(p=>p.featured).slice(0,6); const physical=categories.filter(c=>c.group_type==='physical').slice(0,8); const digitalCats=categories.filter(c=>c.group_type==='digital').slice(0,8); const best=filtered.filter(p=>!digitalTypes.has(p.product_type)).slice(0,6); const digital=filtered.filter(p=>digitalTypes.has(p.product_type)).slice(0,6)
   return <div className="store-page" style={{'--blue':settings.primary_color||'#0f67ff','--purple':settings.accent_color||'#7c3aed'}}><StoreHeader settings={settings}/>{error&&<div className="notice container-wide">{error}</div>}<main className="container-wide">
@@ -19,6 +21,7 @@ export default function HomePage(){
     <section className="promo-banners"><div className="mini-banner flash"><div><h3>⚡ FLASH SALE</h3><p>Produk pilihan, harga spesial setiap hari.</p></div><Gift/></div><div className="mini-banner instant"><div><h3>Produk Digital<br/>Transaksi Instan</h3><p>Pulsa • Token PLN • Voucher • Paket Data</p></div><Smartphone/></div><div className="mini-banner member"><div><h3>Gabung Member</h3><p>Promo eksklusif, poin reward dan update produk.</p></div><Sparkles/></div></section>
     <section id="physical" className="section"><div className="section-head"><div><h2>Produk Fisik</h2><span>Stok nyata, HPP & inventory siap terhubung.</span></div></div><div className="product-grid">{best.map(p=><ProductCard key={p.id} product={p} onPreview={setPreview}/>)}</div></section>
     <section id="digital" className="section"><div className="section-head"><div><h2>Produk Digital & Transaksi</h2><span>Pulsa, paket data, token, top up dan produk digital dipisahkan dari fisik.</span></div></div><div className="digital-feature-row"><div><Wifi/><span>Paket Data</span></div><div><Zap/><span>Token PLN</span></div><div><Bolt/><span>Top Up</span></div><div><Smartphone/><span>Pulsa</span></div></div><div className="product-grid">{digital.map(p=><ProductCard key={p.id} product={p} onPreview={setPreview}/>)}</div></section>
+    <section id="articles" className="section article-home-section"><div className="section-head"><div><h2>📰 Artikel & Inspirasi</h2><span>Tips, informasi produk, promo, dan panduan terbaru dari toko.</span></div><a href="/articles">Lihat Semua <ArrowRight size={16}/></a></div>{articlesLoading?<div className="article-loading">Memuat artikel...</div>:<div className="article-grid">{articles.map(a=><ArticleCard key={a.id} article={a}/>)}</div>}</section>
     <section id="all" className="section"><div className="section-head"><div><h2>{q?`Hasil pencarian: ${params.get('q')}`:'Produk Terbaru'}</h2><span>{filtered.length} produk ditemukan.</span></div></div><div className="product-grid">{filtered.map(p=><ProductCard key={p.id} product={p} onPreview={setPreview}/>)}</div></section>
   </main><Footer settings={settings}/><ProductQuickView product={preview} onClose={()=>setPreview(null)}/></div>
 }
