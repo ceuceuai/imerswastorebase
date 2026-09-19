@@ -5,6 +5,7 @@ import {
 import { NavLink, Link, useNavigate } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import { getOwnerContext, supabase, supabaseEnabled } from '../lib/supabase'
+import '../dashboard-gas-parity.css'
 
 const links = [
   ['/owner', LayoutDashboard, 'Dashboard'],
