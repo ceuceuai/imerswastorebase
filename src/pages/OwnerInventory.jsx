@@ -52,6 +52,7 @@ export default function OwnerInventory(){
       if(error)throw error
       setForm({...form,qty:1,unit_cost:0,note:''})
       await load()
+      supabase.functions.invoke('stock-alert',{body:{force:false}}).catch(()=>{})
     }catch(err){alert(err.message)}finally{setBusy(false)}
   }
 

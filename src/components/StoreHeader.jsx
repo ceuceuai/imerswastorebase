@@ -3,12 +3,18 @@ import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useCart } from '../context/CartContext'
 
+function formatPrefill(message, settings){
+  return String(message||'').replaceAll('{store}',settings.store_name||'Toko')
+}
+
 export default function StoreHeader({ settings }) {
   const { count } = useCart()
   const [q, setQ] = useState('')
   const navigate = useNavigate()
   const submit = e => { e.preventDefault(); navigate(`/?q=${encodeURIComponent(q)}`) }
   const wa = String(settings.whatsapp || '').replace(/\D/g, '')
+  const prefill = settings.wa_prefill_enabled ? formatPrefill(settings.wa_prefill_message, settings) : ''
+  const waHref = wa ? `https://wa.me/${wa}${prefill?`?text=${encodeURIComponent(prefill)}`:''}` : ''
 
   return <>
     <div className="announcement"><span>{settings.announcement_text}</span><div className="announcement-links"><a href="#footer">Tentang Kami</a><a href="#footer">Bantuan</a><a href="/track-order">Cek Pesanan</a></div></div>
@@ -28,7 +34,7 @@ export default function StoreHeader({ settings }) {
       <div className="nav-wrap"><nav className="container-wide nav-bar">
         <button className="category-button"><Menu size={18}/> Semua Kategori</button>
         <NavLink to="/">Beranda</NavLink><a href="#physical">Produk Fisik</a><a href="#digital">Produk Digital</a><a href="#promo">Promo</a><Link to="/articles">Artikel</Link><Link to="/payment-confirmation">Konfirmasi Pembayaran</Link>
-        <div className="nav-spacer"/><button className="support-icon"><Headphones size={19}/></button>{wa && <a className="whatsapp-btn" target="_blank" rel="noreferrer" href={`https://wa.me/${wa}`}>Chat Kami</a>}
+        <div className="nav-spacer"/><button className="support-icon"><Headphones size={19}/></button>{wa && <a className="whatsapp-btn" target="_blank" rel="noreferrer" href={waHref}>Chat Kami</a>}
       </nav></div>
     </header>
   </>

@@ -22,7 +22,7 @@ export function useCatalog() {
       }
 
       try {
-        const [prodRes, catRes, storeRes, brandRes, settingRes, bannerRes] = await Promise.all([
+        const [prodRes, catRes, storeRes, brandRes, settingRes, bannerRes, waPrefillRes] = await Promise.all([
           supabase
             .from('products')
             .select('*,category:categories(id,name,image_url,type,sort_order,status),product_media(id,media_type,media_url,sort_order),product_variants(id,name,sku,price,hpp,stock,image_url,weight_grams,unit,active)')
@@ -47,9 +47,10 @@ export function useCatalog() {
             .order('sort_order')
             .limit(1)
             .maybeSingle(),
+          supabase.rpc('get_public_whatsapp_prefill'),
         ])
 
-        for (const res of [prodRes, catRes, storeRes, brandRes, settingRes, bannerRes]) {
+        for (const res of [prodRes, catRes, storeRes, brandRes, settingRes, bannerRes, waPrefillRes]) {
           if (res.error) throw res.error
         }
 
@@ -58,13 +59,17 @@ export function useCatalog() {
             loading: false,
             products: (prodRes.data || []).map(normalizeProduct),
             categories: (catRes.data || []).map(normalizeCategory),
-            settings: normalizeSettings({
-              store: storeRes.data,
-              brand: brandRes.data,
-              settings: settingRes.data,
-              banner: bannerRes.data,
-              fallback: demoSettings,
-            }),
+            settings: {
+              ...normalizeSettings({
+                store: storeRes.data,
+                brand: brandRes.data,
+                settings: settingRes.data,
+                banner: bannerRes.data,
+                fallback: demoSettings,
+              }),
+              wa_prefill_enabled: !!waPrefillRes.data?.enabled,
+              wa_prefill_message: waPrefillRes.data?.message || '',
+            },
             error: '',
           })
         }

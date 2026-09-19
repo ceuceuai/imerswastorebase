@@ -118,7 +118,7 @@ export default function OwnerProducts() {
       const mediaRows = [...images.map((url,i)=>({product_id:productId,media_type:'image',media_url:url,sort_order:i+1})),...videos.map((url,i)=>({product_id:productId,media_type:'video',media_url:url,sort_order:100+i}))]
       if (mediaRows.length) { const {error:mediaError} = await supabase.from('product_media').insert(mediaRows); if (mediaError) throw mediaError }
       await syncVariants(productId,sid)
-      await load();setModal(false)
+      await load();supabase.functions.invoke('stock-alert',{body:{force:false}}).catch(()=>{});setModal(false)
     } catch(err) { alert(err.message) } finally { setBusy(false) }
   }
 

@@ -3,3 +3,6 @@ verify_jwt = false
 
 [functions.order-notify]
 verify_jwt = false
+
+[functions.stock-alert]
+verify_jwt = true

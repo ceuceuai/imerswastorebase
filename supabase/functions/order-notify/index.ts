@@ -1,6 +1,7 @@
 import { corsHeaders, json } from '../_shared/cors.ts'
 import { serviceClient } from '../_shared/supabase.ts'
 import { sendEmail, sendWhatsApp } from '../_shared/providers.ts'
+import { processLowStockAlert } from '../_shared/stock.ts'
 
 function rupiah(n: unknown){return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Number(n||0))}
 function tpl(value: string | null | undefined, vars: Record<string,string>){let out=String(value||'');for(const[k,v]of Object.entries(vars))out=out.replaceAll(`{${k}}`,v);return out}
@@ -44,6 +45,7 @@ Deno.serve(async req=>{
       if(auto.whatsapp_enabled&&waIntegration?.enabled&&customer.phone&&auto.customer_order_template){try{await sendWhatsApp(waIntegration,customer.phone,tpl(auto.customer_order_template,vars));results.push({channel:'wa-customer',ok:true})}catch(e){results.push({channel:'wa-customer',ok:false,error:e instanceof Error?e.message:'gagal'})}}
       if(auto.email_enabled&&auto.order_notification&&emailIntegration?.enabled){const target=auto.email_recipient||store?.email;if(target){try{await sendEmail(emailIntegration,target,tpl(auto.email_order_subject,vars),tpl(auto.email_order_template,vars));results.push({channel:'email-admin',ok:true})}catch(e){results.push({channel:'email-admin',ok:false,error:e instanceof Error?e.message:'gagal'})}}}
       await svc.from('orders').update({notified_at:new Date().toISOString()}).eq('id',order.id)
+      try{const stockResult=await processLowStockAlert(svc,order.store_id);results.push({channel:'stock-alert',ok:true,detail:stockResult})}catch(e){results.push({channel:'stock-alert',ok:false,error:e instanceof Error?e.message:'gagal'})}
     }
 
     if(event==='payment_confirmation'&&auto.whatsapp_enabled&&auto.payment_notification&&waIntegration?.enabled&&auto.whatsapp_recipient){try{await sendWhatsApp(waIntegration,auto.whatsapp_recipient,tpl(auto.payment_notification_template,vars));results.push({channel:'wa-payment',ok:true})}catch(e){results.push({channel:'wa-payment',ok:false,error:e instanceof Error?e.message:'gagal'})}}

@@ -57,7 +57,7 @@ export function normalizeSettings({ store, brand, settings, banner, fallback }) 
     hero_button_text: banner?.button_text || settings?.hero_button_text || 'Belanja Sekarang',
     hero_button_url: banner?.button_url || settings?.hero_button_url || '#promo',
     footer_text: brand?.footer_text || settings?.footer_text || fallback.footer_text,
-    social_media: settings?.social_media || {},
+    social_media: Array.isArray(settings?.social_media) ? settings.social_media : (settings?.social_media && typeof settings.social_media === 'object' ? Object.entries(settings.social_media).filter(([,url])=>url).map(([platform,url])=>({platform,label:platform,url,active:true})) : []),
     homepage_config: settings?.homepage_config || {},
     seo_config: settings?.seo_config || {},
     tracking_config: settings?.tracking_config || {},
