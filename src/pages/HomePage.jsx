@@ -6,6 +6,7 @@ import ProductCard from '../components/ProductCard'
 import ProductQuickView from '../components/ProductQuickView'
 import Footer from '../components/Footer'
 import ArticleCard from '../components/ArticleCard'
+import SeoManager from '../components/SeoManager'
 import { useCatalog } from '../hooks/useCatalog'
 import { useArticles } from '../hooks/useArticles'
 
@@ -14,7 +15,7 @@ export default function HomePage(){
   const {products,categories,settings,error,loading}=useCatalog(); const {articles,loading:articlesLoading}=useArticles({limit:3}); const [preview,setPreview]=useState(null); const [params]=useSearchParams(); const q=(params.get('q')||'').toLowerCase()
   const filtered=useMemo(()=>products.filter(p=>!q || `${p.name} ${p.category?.name||''}`.toLowerCase().includes(q)),[products,q])
   const featured=filtered.filter(p=>p.featured).slice(0,6); const physical=categories.filter(c=>c.group_type==='physical').slice(0,8); const digitalCats=categories.filter(c=>c.group_type==='digital').slice(0,8); const best=filtered.filter(p=>!digitalTypes.has(p.product_type)).slice(0,6); const digital=filtered.filter(p=>digitalTypes.has(p.product_type)).slice(0,6)
-  return <div className="store-page" style={{'--blue':settings.primary_color||'#0f67ff','--purple':settings.accent_color||'#7c3aed'}}><StoreHeader settings={settings}/>{error&&<div className="notice container-wide">{error}</div>}<main className="container-wide">
+  return <div className="store-page" style={{'--blue':settings.primary_color||'#0f67ff','--purple':settings.accent_color||'#7c3aed'}}><SeoManager settings={settings}/><StoreHeader settings={settings}/>{error&&<div className="notice container-wide">{error}</div>}<main className="container-wide">
     <section className="hero" style={{'--hero':`url(${settings.hero_image_url})`}}><div className="hero-content"><span className="hero-kicker"><Sparkles size={16}/> Marketplace modern & fleksibel</span><h1>{settings.hero_title}</h1><p>{settings.hero_subtitle}</p><a href={settings.hero_button_url||'#promo'} className="hero-btn">{settings.hero_button_text||'Belanja Sekarang'} <ArrowRight/></a></div><div className="hero-bubble"><b>Transaksi</b><span>Cepat & Aman</span><strong>24/7</strong></div></section>
     <section id="promo" className="section"><div className="section-head"><div><h2>👑 Featured Promo</h2><span>Produk pilihan dengan penawaran terbaik.</span></div><a href="#all">Lihat Semua <ArrowRight size={16}/></a></div>{loading?<div className="loading-grid">Memuat produk...</div>:<div className="product-grid">{featured.map(p=><ProductCard key={p.id} product={p} onPreview={setPreview}/>)}</div>}</section>
     <section className="category-split"><div className="category-panel physical-panel"><div className="section-head small"><h2>🛒 Kategori Produk Fisik</h2><a href="#physical">Lihat Semua →</a></div><div className="category-icons">{physical.map(c=><div key={c.id}><span>{c.image_url?<img src={c.image_url} alt={c.name}/>:c.icon||'📦'}</span><b>{c.name}</b></div>)}</div></div><div className="category-panel digital-panel"><div className="section-head small"><h2>🟣 Produk Digital & Pulsa</h2><a href="#digital">Lihat Semua →</a></div><div className="category-icons">{digitalCats.map(c=><div key={c.id}><span>{c.image_url?<img src={c.image_url} alt={c.name}/>:c.icon||'⚡'}</span><b>{c.name}</b></div>)}</div></div></section>

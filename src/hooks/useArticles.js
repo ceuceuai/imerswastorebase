@@ -44,11 +44,10 @@ export function useArticles({ limit = 0, featuredOnly = false } = {}) {
         const { data, error } = await query
         if (error) throw error
         const rows = (data || []).map(normalizeArticle)
-        if (!cancelled) setState({ loading: false, articles: rows.length ? rows : demoArticles.slice(0, limit || demoArticles.length), error: '' })
+        if (!cancelled) setState({ loading: false, articles: rows, error: '' })
       } catch (err) {
         console.error('articles:', err)
-        const fallback = featuredOnly ? demoArticles.filter(a => a.featured) : demoArticles
-        if (!cancelled) setState({ loading: false, articles: limit ? fallback.slice(0, limit) : fallback, error: err.message || 'Gagal memuat artikel.' })
+        if (!cancelled) setState({ loading: false, articles: [], error: err.message || 'Gagal memuat artikel.' })
       }
     }
     load()

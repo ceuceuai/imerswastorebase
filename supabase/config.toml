@@ -1,0 +1,5 @@
+[functions.shipping-rates]
+verify_jwt = false
+
+[functions.order-notify]
+verify_jwt = false

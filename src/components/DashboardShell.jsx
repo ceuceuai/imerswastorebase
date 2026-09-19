@@ -1,20 +1,21 @@
 import {
   BarChart3, Boxes, ClipboardList, FileText, LayoutDashboard, LogOut, Package, Settings,
   Store, Menu, X, Tags, Truck, TicketPercent, MonitorSmartphone, Users, PlaySquare,
-  ShoppingBag, CircleDollarSign
+  WalletCards, MessageCircleMore, PlugZap, SearchCheck, BadgeDollarSign, UserRoundCog
 } from 'lucide-react'
 import { NavLink, Link, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase, supabaseEnabled } from '../lib/supabase'
 import { themeToVars, useAdminTheme } from '../context/AdminThemeContext'
+import { resolveAccount } from '../lib/account'
+import { canAccessRoute } from '../lib/permissions'
 import '../admin-premium.css'
 
 const menuGroups = [
-  { label:'Utama', items:[
-    ['/owner', LayoutDashboard, 'Dashboard'],
-  ]},
+  { label:'Utama', items:[['/owner', LayoutDashboard, 'Dashboard']]},
   { label:'Penjualan', items:[
     ['/owner/orders', ClipboardList, 'Pesanan Masuk'],
+    ['/owner/payment-confirmations', BadgeDollarSign, 'Konfirmasi Bayar'],
     ['/owner/pos', MonitorSmartphone, 'Kasir POS'],
   ]},
   { label:'Katalog & Konten', items:[
@@ -23,13 +24,20 @@ const menuGroups = [
     ['/owner/coupons', TicketPercent, 'Kupon & Promo'],
     ['/owner/articles', FileText, 'Artikel & Blog'],
   ]},
+  { label:'Pelanggan & Promosi', items:[
+    ['/owner/customers', UserRoundCog, 'CRM Pelanggan'],
+    ['/owner/broadcasts', MessageCircleMore, 'Broadcast WA & Email'],
+    ['/owner/marketing', SearchCheck, 'Marketing & SEO'],
+  ]},
   { label:'Operasional', items:[
     ['/owner/inventory', Boxes, 'Inventory & HPP'],
-    ['/owner/shipping', Truck, 'Ongkir'],
+    ['/owner/shipping', Truck, 'Ongkir Manual'],
+    ['/owner/payments', WalletCards, 'Pembayaran & Rekening'],
     ['/owner/staff', Users, 'Manajemen Kasir'],
     ['/owner/reports', BarChart3, 'Profit Report'],
   ]},
   { label:'Sistem', items:[
+    ['/owner/integrations', PlugZap, 'Integrasi WA / Email / RajaOngkir'],
     ['/owner/settings', Settings, 'Pengaturan Toko'],
     ['/owner/guides', PlaySquare, 'Video Panduan'],
   ]},
@@ -41,12 +49,14 @@ function initials(name='iMersWAStore'){
 
 export default function DashboardShell({ children, title, subtitle }) {
   const [open,setOpen] = useState(false)
+  const [account,setAccount] = useState({account_type:'admin',role:'owner',active:true,permissions:{all:true}})
+  useEffect(()=>{ if(supabaseEnabled) resolveAccount().then(setAccount).catch(()=>{}) },[])
   const nav=useNavigate()
   const { theme, store, brand, profile } = useAdminTheme()
   const storeName = brand?.app_name || store?.name || 'iMersWAStore'
   const logo = brand?.logo_url || store?.logo_url || ''
   const ownerName = profile?.full_name || 'Owner iMersWAStore'
-  const role = profile?.role || 'owner'
+  const role = account?.role || profile?.role || 'owner'
   const vars = themeToVars(theme)
   const logout = async()=>{ if(supabaseEnabled) await supabase.auth.signOut(); nav('/login') }
   const today = new Intl.DateTimeFormat('id-ID',{weekday:'short',day:'2-digit',month:'long',year:'numeric'}).format(new Date())
@@ -56,7 +66,7 @@ export default function DashboardShell({ children, title, subtitle }) {
       <aside className={`dash-sidebar ${open?'open':''}`}>
         <div className="dash-brand">
           <div className="dash-brand-logo">{logo?<img src={logo} alt={storeName}/>:initials(storeName)}</div>
-          <div className="dash-brand-copy"><b>{storeName}</b><small>Commerce Dashboard</small></div>
+          <div className="dash-brand-copy"><b>{storeName}</b><small>Single Store Commerce</small></div>
           <button className="dash-close" onClick={()=>setOpen(false)}><X size={18}/></button>
         </div>
         <div className="dash-profile">
@@ -64,12 +74,10 @@ export default function DashboardShell({ children, title, subtitle }) {
           <div><b>{ownerName}</b><small>{role}</small></div>
         </div>
         <nav className="dash-nav">
-          {menuGroups.map(group=><div className="dash-nav-group" key={group.label}>
+          {menuGroups.map(group=>{const items=group.items.filter(([to])=>canAccessRoute(account,to));if(!items.length)return null;return <div className="dash-nav-group" key={group.label}>
             <span className="dash-nav-title">{group.label}</span>
-            {group.items.map(([to,Icon,label])=><NavLink key={to} to={to} end={to==='/owner'} onClick={()=>setOpen(false)}>
-              <Icon/>{label}
-            </NavLink>)}
-          </div>)}
+            {items.map(([to,Icon,label])=><NavLink key={to} to={to} end={to==='/owner'} onClick={()=>setOpen(false)}><Icon/>{label}</NavLink>)}
+          </div>})}
         </nav>
         <div className="dash-side-bottom">
           <Link to="/"><Store size={17}/> Lihat Toko</Link>
@@ -82,6 +90,7 @@ export default function DashboardShell({ children, title, subtitle }) {
           <button className="dash-menu" onClick={()=>setOpen(true)}><Menu size={19}/></button>
           <div className="dash-top-copy"><h1>{title}</h1><p>{subtitle}</p></div>
           <div className="dash-top-actions">
+            <span className="single-store-chip"><Store size={12}/> Single Store</span>
             <span className="supabase-chip"><i/>{supabaseEnabled?'Supabase Connected':'Demo Mode'}</span>
             <span className="dash-date">{today}</span>
           </div>

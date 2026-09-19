@@ -25,7 +25,7 @@ export function useCatalog() {
         const [prodRes, catRes, storeRes, brandRes, settingRes, bannerRes] = await Promise.all([
           supabase
             .from('products')
-            .select('*,category:categories(id,name,image_url,type,sort_order,status),product_media(id,media_type,media_url,sort_order)')
+            .select('*,category:categories(id,name,image_url,type,sort_order,status),product_media(id,media_type,media_url,sort_order),product_variants(id,name,sku,price,hpp,stock,image_url,weight_grams,unit,active)')
             .eq('store_id', configuredStoreId)
             .eq('status', true)
             .order('created_at', { ascending: false }),
@@ -73,10 +73,10 @@ export function useCatalog() {
         if (!cancelled) {
           setState({
             loading: false,
-            products: demoProducts,
-            categories: demoCategories,
+            products: [],
+            categories: [],
             settings: demoSettings,
-            error: `Supabase query gagal: ${err.message}. Menampilkan data demo.`,
+            error: `Supabase query gagal: ${err.message}. Data demo tidak dipakai pada koneksi production.`,
           })
         }
       }

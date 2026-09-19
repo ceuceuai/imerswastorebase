@@ -4,10 +4,10 @@ import { getOwnerContext, supabase, supabaseEnabled } from '../lib/supabase'
 import { demoProducts } from '../data/demo'
 import { normalizeProduct } from '../lib/schemaAdapter'
 import { rupiah } from '../lib/format'
-import { Plus, Search } from 'lucide-react'
+import { Boxes, PackagePlus, Plus, Search, TrendingUp } from 'lucide-react'
 
 export default function OwnerInventory(){
-  const [products,setProducts]=useState(demoProducts.filter(p=>p.product_type==='physical'))
+  const [products,setProducts]=useState(supabaseEnabled?[]:demoProducts.filter(p=>p.product_type==='physical'))
   const [moves,setMoves]=useState([])
   const [search,setSearch]=useState('')
   const [type,setType]=useState('all')
@@ -55,7 +55,9 @@ export default function OwnerInventory(){
     }catch(err){alert(err.message)}finally{setBusy(false)}
   }
 
-  return <DashboardShell title="Inventory & HPP" subtitle="Stok masuk/keluar dan moving-average HPP menggunakan backend Supabase existing.">
+  return <DashboardShell title="Inventory & HPP" subtitle="Stok masuk/keluar dan moving-average HPP untuk satu toko.">
+    <div className="module-hero tone-inventory"><div><span>STOCK CONTROL</span><h2>Stok dan HPP bergerak dalam satu dashboard</h2><p>Setiap stok masuk memperbarui moving-average HPP. Penjualan online dan POS tercatat sebagai pergerakan stok keluar.</p></div><div className="module-hero-icon"><Boxes/></div></div>
+    <div className="inventory-mini-stats"><div><PackagePlus/><span><b>{products.reduce((n,p)=>n+Number(p.stock||0),0)}</b><small>Total unit tersedia</small></span></div><div><TrendingUp/><span><b>{rupiah(products.reduce((n,p)=>n+(Number(p.stock||0)*Number(p.avg_cost||0)),0))}</b><small>Nilai stok berdasar HPP</small></span></div><div><Boxes/><span><b>{products.length}</b><small>Produk fisik aktif</small></span></div></div>
     <form className="dash-panel inventory-entry" onSubmit={submit}>
       <div className="panel-head"><div><h2>Catat Pergerakan Stok</h2><p>Stok masuk dengan HPP baru otomatis menghitung rata-rata HPP.</p></div></div>
       <div className="form-grid">

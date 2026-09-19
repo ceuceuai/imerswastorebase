@@ -11,7 +11,7 @@ export default function StoreHeader({ settings }) {
   const wa = String(settings.whatsapp || '').replace(/\D/g, '')
 
   return <>
-    <div className="announcement"><span>{settings.announcement_text}</span><div className="announcement-links"><a href="#footer">Tentang Kami</a><a href="#footer">Bantuan</a><a href="#">Cek Pesanan</a></div></div>
+    <div className="announcement"><span>{settings.announcement_text}</span><div className="announcement-links"><a href="#footer">Tentang Kami</a><a href="#footer">Bantuan</a><a href="/track-order">Cek Pesanan</a></div></div>
     <header className="store-header">
       <div className="top-header container-wide">
         <Link className="brand" to="/">
@@ -27,7 +27,7 @@ export default function StoreHeader({ settings }) {
       </div>
       <div className="nav-wrap"><nav className="container-wide nav-bar">
         <button className="category-button"><Menu size={18}/> Semua Kategori</button>
-        <NavLink to="/">Beranda</NavLink><a href="#physical">Produk Fisik</a><a href="#digital">Produk Digital</a><a href="#promo">Promo</a><Link to="/articles">Artikel</Link><Link to="/checkout">Konfirmasi Pembayaran</Link>
+        <NavLink to="/">Beranda</NavLink><a href="#physical">Produk Fisik</a><a href="#digital">Produk Digital</a><a href="#promo">Promo</a><Link to="/articles">Artikel</Link><Link to="/payment-confirmation">Konfirmasi Pembayaran</Link>
         <div className="nav-spacer"/><button className="support-icon"><Headphones size={19}/></button>{wa && <a className="whatsapp-btn" target="_blank" rel="noreferrer" href={`https://wa.me/${wa}`}>Chat Kami</a>}
       </nav></div>
     </header>

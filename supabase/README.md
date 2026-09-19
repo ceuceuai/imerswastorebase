@@ -1,11 +1,11 @@
-# Supabase untuk project ini
+# Supabase migration order
 
-Project ini **bukan** untuk database kosong. Backend Supabase iMersWAStore yang sudah ada (Step 1–16) tetap menjadi master.
+Database project ini sudah mempunyai Step 1–21.
 
-Jangan jalankan SQL foundation lama dari package frontend sebelumnya.
+Untuk release v5 Single Store, **jalankan hanya migration baru berikut setelah Step 21**:
 
-Jalankan hanya:
+`04_STEP22_SINGLE_STORE_FULL_COMMERCE_SUITE.sql`
 
-`01_EXISTING_BACKEND_FRONTEND_COMPATIBILITY.sql`
+Jangan menjalankan `00_base_full.sql` dari prototype lama pada database existing.
 
-Patch ini additive: menambah field frontend yang belum ada, public read policy untuk storefront, secure checkout RPC, dan inventory RPC. Core table existing tidak dibuat ulang.
+Setelah SQL sukses, deploy Edge Functions di folder `supabase/functions/`.
