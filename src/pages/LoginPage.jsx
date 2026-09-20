@@ -1,17 +1,33 @@
-import { ArrowLeft, Eye, EyeOff, LockKeyhole, Mail, ShieldCheck, ShoppingBag, UserRound } from 'lucide-react'
+import {
+  ArrowLeft,
+  Eye,
+  EyeOff,
+  LockKeyhole,
+  Mail,
+  ShoppingBag,
+  UserRound,
+} from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import { configuredStoreId, supabase, supabaseEnabled } from '../lib/supabase'
 import { resolveAccount } from '../lib/account'
 import '../auth-login.css'
 
+const REMEMBER_EMAIL_KEY = 'imerswastore_remembered_email'
+
 export default function LoginPage(){
-  const [email,setEmail]=useState('')
+  const [email,setEmail]=useState(()=>localStorage.getItem(REMEMBER_EMAIL_KEY)||'')
   const [password,setPassword]=useState('')
   const [showPassword,setShowPassword]=useState(false)
+  const [remember,setRemember]=useState(()=>Boolean(localStorage.getItem(REMEMBER_EMAIL_KEY)))
   const [busy,setBusy]=useState(false)
   const [message,setMessage]=useState({type:'',text:''})
-  const [brand,setBrand]=useState({name:'iMersWAStore',logo:'',primary:'#0f67ff',tagline:'Kelola toko lebih cepat, rapi, dan aman.'})
+  const [brand,setBrand]=useState({
+    name:'iMersWAStore',
+    logo:'',
+    primary:'#0f67ff',
+    tagline:'Belanja Mudah, Untung Setiap Hari',
+  })
   const nav=useNavigate()
 
   useEffect(()=>{
@@ -31,7 +47,9 @@ export default function LoginPage(){
           primary:brandRes.data?.primary_color||storeRes.data?.theme_color||prev.primary,
           tagline:settingsRes.data?.tagline||prev.tagline,
         }))
-      }catch(e){console.warn('Brand login gagal dimuat:',e)}
+      }catch(e){
+        console.warn('Brand login gagal dimuat:',e)
+      }
     }
     loadBrand()
     return()=>{alive=false}
@@ -42,7 +60,14 @@ export default function LoginPage(){
   const submit=async e=>{
     e.preventDefault()
     setMessage({type:'',text:''})
-    if(!supabaseEnabled){nav('/owner');return}
+    if(remember)localStorage.setItem(REMEMBER_EMAIL_KEY,email.trim())
+    else localStorage.removeItem(REMEMBER_EMAIL_KEY)
+
+    if(!supabaseEnabled){
+      nav('/owner')
+      return
+    }
+
     setBusy(true)
     try{
       const {error}=await supabase.auth.signInWithPassword({email:email.trim(),password})
@@ -58,7 +83,7 @@ export default function LoginPage(){
       }
       if(acc.account_type==='disabled')throw new Error('Akses akun ini sedang dinonaktifkan. Hubungi owner toko.')
       await supabase.auth.signOut()
-      throw new Error('Akun berhasil login, tetapi belum terhubung ke akses toko. Jalankan SQL Step 23 Owner Auth Repair.')
+      throw new Error('Akun berhasil login, tetapi belum terhubung ke akses toko.')
     }catch(err){
       setMessage({type:'error',text:err?.message||'Login gagal. Silakan coba lagi.'})
     }finally{
@@ -66,61 +91,93 @@ export default function LoginPage(){
     }
   }
 
-  return <main className="login-premium" style={pageStyle}>
-    <div className="login-premium-shell">
-      <section className="login-premium-showcase">
-        <div className="login-premium-orb login-premium-orb-one"/>
-        <div className="login-premium-orb login-premium-orb-two"/>
-        <Link className="login-premium-back" to="/"><ArrowLeft/> Kembali ke Toko</Link>
-        <div className="login-premium-showcase-content">
-          <div className="login-premium-badge"><ShieldCheck/> SINGLE STORE COMMERCE</div>
-          <h1>Kelola toko dari satu dashboard yang lebih pintar.</h1>
-          <p>Produk, pesanan, POS, stok, artikel, pelanggan, broadcast dan laporan tetap dalam satu alur kerja.</p>
-          <div className="login-premium-points">
-            <span><i>01</i><b>Dashboard Premium</b><small>Tema dan branding mengikuti toko Anda.</small></span>
-            <span><i>02</i><b>Operasional Terpadu</b><small>Owner dan staff bekerja dari sistem yang sama.</small></span>
-            <span><i>03</i><b>Supabase Connected</b><small>Auth, data dan keamanan terhubung langsung.</small></span>
-          </div>
+  return <main className="login-v3" style={pageStyle}>
+    <div className="login-v3-orb login-v3-orb-a"/>
+    <div className="login-v3-orb login-v3-orb-b"/>
+
+    <section className="login-v3-card">
+      <div className="login-v3-brand">
+        <div className="login-v3-logo">
+          {brand.logo?<img src={brand.logo} alt={brand.name}/>:<ShoppingBag/>}
         </div>
-      </section>
-
-      <section className="login-premium-panel">
-        <div className="login-premium-card">
-          <div className="login-premium-brand">
-            <div className="login-premium-logo">{brand.logo?<img src={brand.logo} alt={brand.name}/>:<ShoppingBag/>}</div>
-            <div><strong>{brand.name}</strong><small>{brand.tagline}</small></div>
-          </div>
-
-          <div className="login-premium-heading">
-            <span>AKUN & DASHBOARD</span>
-            <h2>Selamat Datang Kembali</h2>
-            <p>Masuk menggunakan akun owner, staff, kasir, atau pelanggan terdaftar.</p>
-          </div>
-
-          {message.text&&<div className={`login-premium-alert ${message.type}`}>{message.text}</div>}
-
-          <form className="login-premium-form" onSubmit={submit}>
-            <label>
-              <span><Mail/> Email</span>
-              <div className="login-premium-input"><input type="email" autoComplete="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="nama@email.com"/></div>
-            </label>
-            <label>
-              <div className="login-premium-label-row"><span><LockKeyhole/> Password</span><Link to="/forgot-password">Lupa password?</Link></div>
-              <div className="login-premium-input password"><input type={showPassword?'text':'password'} autoComplete="current-password" required={supabaseEnabled} value={password} onChange={e=>setPassword(e.target.value)} placeholder="Masukkan password"/><button type="button" aria-label={showPassword?'Sembunyikan password':'Tampilkan password'} onClick={()=>setShowPassword(v=>!v)}>{showPassword?<EyeOff/>:<Eye/>}</button></div>
-            </label>
-            <button className="login-premium-submit" disabled={busy}>{busy?'Memverifikasi...':'Masuk ke Dashboard'}</button>
-          </form>
-
-          <div className="login-premium-register">
-            <UserRound/>
-            <div><b>Belum punya akun?</b><small>Daftar sebagai pelanggan toko.</small></div>
-            <Link to="/register">Daftar</Link>
-          </div>
-
-          {!supabaseEnabled&&<div className="login-premium-demo">Mode demo aktif karena konfigurasi Supabase belum tersedia.</div>}
-          <p className="login-premium-footnote">Akses dashboard dilindungi Supabase Auth.</p>
+        <div className="login-v3-brand-copy">
+          <strong>{brand.name}</strong>
+          <span>{brand.tagline}</span>
         </div>
-      </section>
-    </div>
+      </div>
+
+      <div className="login-v3-heading">
+        <h1>Masuk ke Akun</h1>
+        <p>Masukkan email dan password untuk melanjutkan.</p>
+      </div>
+
+      {message.text&&<div className={`login-v3-alert ${message.type}`}><span>!</span><div>{message.text}</div></div>}
+
+      <form className="login-v3-form" onSubmit={submit}>
+        <label>
+          <span className="login-v3-label"><Mail/> Email</span>
+          <div className="login-v3-input-wrap">
+            <Mail className="login-v3-field-icon"/>
+            <input
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={e=>setEmail(e.target.value)}
+              placeholder="nama@email.com"
+            />
+          </div>
+        </label>
+
+        <label>
+          <span className="login-v3-label"><LockKeyhole/> Password</span>
+          <div className="login-v3-input-wrap">
+            <LockKeyhole className="login-v3-field-icon"/>
+            <input
+              type={showPassword?'text':'password'}
+              autoComplete="current-password"
+              required={supabaseEnabled}
+              value={password}
+              onChange={e=>setPassword(e.target.value)}
+              placeholder="Masukkan password"
+            />
+            <button
+              className="login-v3-eye"
+              type="button"
+              aria-label={showPassword?'Sembunyikan password':'Tampilkan password'}
+              onClick={()=>setShowPassword(v=>!v)}
+            >
+              {showPassword?<EyeOff/>:<Eye/>}
+            </button>
+          </div>
+        </label>
+
+        <div className="login-v3-options">
+          <label className="login-v3-remember">
+            <input type="checkbox" checked={remember} onChange={e=>setRemember(e.target.checked)}/>
+            <span><i/> Ingat email saya</span>
+          </label>
+          <Link to="/forgot-password">Lupa password?</Link>
+        </div>
+
+        <button className="login-v3-submit" disabled={busy}>
+          {busy?'Memverifikasi akun...':'Masuk'}
+        </button>
+      </form>
+
+      <div className="login-v3-divider"><span>Belum punya akun?</span></div>
+
+      <Link className="login-v3-register" to="/register">
+        <span><UserRound/></span>
+        <div>
+          <b>Daftar akun pelanggan</b>
+          <small>Buat akun untuk menyimpan profil dan riwayat transaksi.</small>
+        </div>
+      </Link>
+
+      <Link className="login-v3-back" to="/"><ArrowLeft/> Kembali ke toko</Link>
+
+      {!supabaseEnabled&&<div className="login-v3-demo">Mode demo aktif karena konfigurasi Supabase belum tersedia.</div>}
+    </section>
   </main>
 }
