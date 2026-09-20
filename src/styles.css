@@ -42,3 +42,11 @@
 /* v5.5 footer/legal/social additions - homepage structure remains unchanged */
 .footer-grid-v2{grid-template-columns:2fr repeat(3,1fr);align-items:start}.footer-address{display:block;max-width:430px;color:#9fb0c8;line-height:1.6;margin-top:10px}.footer-social-col{grid-column:1/-1;border-top:1px solid rgba(255,255,255,.08);padding-top:18px}.footer-social-links{display:flex;flex-wrap:wrap;gap:9px}.footer-social-links a{display:inline-flex;align-items:center;gap:6px;margin:0;padding:8px 11px;border:1px solid rgba(255,255,255,.1);border-radius:9px;background:rgba(255,255,255,.04);color:#dbe7f6}.footer-disclaimer{margin-top:22px;padding:14px 16px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(255,255,255,.035);font-size:11px;line-height:1.65;color:#aebed2}.footer-disclaimer b{color:#eaf2fb}.whatsapp-success-btn{border-color:#7adf9d!important;color:#137a36!important;background:#effdf3!important}
 @media(max-width:900px){.footer-grid-v2{grid-template-columns:1fr 1fr}}@media(max-width:560px){.footer-grid-v2{grid-template-columns:1fr}.footer-social-col{grid-column:auto}}
+
+
+/* iMersWAStore Banner 2 / Banner Tengah - GAS parity */
+.homepage-mid-banner{margin-top:24px;border-radius:16px;overflow:hidden;background:#fff;border:1px solid #e5ebf4;box-shadow:0 10px 26px rgba(37,70,120,.10)}
+.homepage-mid-banner a{display:block}
+.homepage-mid-banner img{display:block;width:100%;height:auto;max-height:280px;object-fit:cover;transition:transform .35s ease}
+.homepage-mid-banner:hover img{transform:scale(1.012)}
+@media(max-width:768px){.homepage-mid-banner{margin-top:18px;border-radius:12px}.homepage-mid-banner img{max-height:190px}}
