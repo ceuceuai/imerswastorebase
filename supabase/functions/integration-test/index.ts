@@ -19,11 +19,12 @@ Deno.serve(async (req) => {
     if (sErr) throw sErr
     if (xErr) throw xErr
     if (!settings) throw new Error('Integrasi belum disimpan')
-    const integration = { ...settings, secrets: secret?.secrets || {} }
+    const integration = { ...settings, enabled: true, secrets: secret?.secrets || {} } // Test koneksi boleh dijalankan walau integrasi belum diaktifkan.
 
     if (channel === 'whatsapp') {
       await sendWhatsApp(integration, to, `Test koneksi iMersWAStore berhasil.\nWaktu: ${new Date().toLocaleString('id-ID')}`)
-      return json({ ok: true, message: `Test WhatsApp ${settings.provider || ''} berhasil dikirim.` })
+      const normalized = String(to || '').replace(/\D/g, '').replace(/^0/, '62')
+      return json({ ok: true, message: `Test WhatsApp ${settings.provider || ''} berhasil dikirim ke ${normalized}.` })
     }
 
     if (channel === 'email') {
@@ -31,7 +32,6 @@ Deno.serve(async (req) => {
       return json({ ok: true, message: `Test Email ${settings.provider || ''} berhasil dikirim.` })
     }
 
-    if (!settings.enabled) throw new Error('Integrasi RajaOngkir belum diaktifkan')
     if (settings.provider !== 'rajaongkir') return json({ ok: true, message: 'Mode ongkir manual aktif; tidak ada API yang perlu dites.' })
     const apiKey = String(secret?.secrets?.api_key || '').trim()
     if (!apiKey) throw new Error('RajaOngkir API key belum disimpan')

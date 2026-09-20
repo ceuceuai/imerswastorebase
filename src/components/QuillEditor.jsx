@@ -1,3 +1,4 @@
+import { appPrompt } from '../lib/appDialog'
 import { useEffect, useRef } from 'react'
 import Quill from 'quill'
 import 'quill/dist/quill.snow.css'
@@ -30,8 +31,8 @@ export default function QuillEditor({ value = '', onChange, placeholder = 'Tulis
         toolbar: {
           container: TOOLBAR,
           handlers: {
-            image() {
-              const url = window.prompt('Masukkan URL gambar (https://...)')
+            async image() {
+              const url = await appPrompt('Masukkan URL gambar (https://...)', { title: 'Tambahkan Gambar', placeholder: 'https://...' })
               if (!url) return
               const range = quill.getSelection(true)
               quill.insertEmbed(range.index, 'image', url, 'user')

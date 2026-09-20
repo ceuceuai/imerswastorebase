@@ -1,3 +1,4 @@
+import { appConfirm } from '../lib/appDialog'
 import DashboardShell from '../components/DashboardShell'
 import { useEffect, useMemo, useState } from 'react'
 import { getOwnerContext, supabase, supabaseEnabled } from '../lib/supabase'
@@ -13,7 +14,7 @@ export default function OwnerPayments(){
  useEffect(()=>{load().catch(e=>alert(e.message))},[])
  const filtered=useMemo(()=>data.filter(x=>!search||`${x.provider_name||''} ${x.account_name||''} ${x.account_number||''} ${x.payment_type||''}`.toLowerCase().includes(search.toLowerCase())),[data,search]);const pages=Math.max(1,Math.ceil(filtered.length/size)),safePage=Math.min(page,pages),rows=filtered.slice((safePage-1)*size,safePage*size)
  const save=async e=>{e.preventDefault();setBusy(true);try{const payload={store_id:storeId,payment_type:form.payment_type,provider_name:form.provider_name||typeLabel[form.payment_type],account_name:['bank','ewallet','qris'].includes(form.payment_type)?(form.account_name||null):null,account_number:['bank','ewallet'].includes(form.payment_type)?(form.account_number||null):null,qr_image:form.payment_type==='qris'?(form.qr_image||null):null,instructions:form.instructions||null,icon_url:form.icon_url||null,sort_order:Number(form.sort_order||0),enabled:!!form.enabled,metadata:{}};const q=form.id?supabase.from('payment_settings').update(payload).eq('id',form.id).eq('store_id',storeId):supabase.from('payment_settings').insert(payload);const{error}=await q;if(error)throw error;await load();setModal(false);setForm(empty)}catch(e){alert(e.message)}finally{setBusy(false)}}
- const del=async x=>{if(!confirm(`Hapus metode ${x.provider_name||x.payment_type}?`))return;const{error}=await supabase.from('payment_settings').delete().eq('id',x.id).eq('store_id',storeId);if(error)alert(error.message);else load().catch(e=>alert(e.message))}
+ const del=async x=>{if(!(await appConfirm(`Hapus metode ${x.provider_name||x.payment_type}?`)))return;const{error}=await supabase.from('payment_settings').delete().eq('id',x.id).eq('store_id',storeId);if(error)alert(error.message);else load().catch(e=>alert(e.message))}
  const icon=t=>t==='qris'?<QrCode/>:t==='ewallet'?<WalletCards/>:t==='cod'?<Banknote/>:<CreditCard/>
  const chooseType=payment_type=>setForm(f=>({...f,payment_type,provider_name:f.id?f.provider_name:(payment_type==='cod'?'COD / Tunai':''),account_name:payment_type==='cod'?'':f.account_name,account_number:['qris','cod'].includes(payment_type)?'':f.account_number,qr_image:payment_type==='qris'?f.qr_image:''}))
  const openNew=()=>{setForm(empty);setModal(true)}

@@ -1,3 +1,4 @@
+import { appConfirm } from '../lib/appDialog'
 import DashboardShell from '../components/DashboardShell'
 import { useEffect, useMemo, useState } from 'react'
 import { getOwnerContext, supabase, supabaseEnabled } from '../lib/supabase'
@@ -12,7 +13,7 @@ export default function OwnerShipping(){
   useEffect(()=>{load().catch(e=>alert(e.message))},[])
   const filtered=useMemo(()=>data.filter(x=>!search||`${x.name||''} ${x.area||''}`.toLowerCase().includes(search.toLowerCase())),[data,search]);const pages=Math.max(1,Math.ceil(filtered.length/size));const rows=filtered.slice((page-1)*size,page*size)
   const save=async e=>{e.preventDefault();setBusy(true);try{const payload={store_id:storeId,name:form.name.trim(),area:form.area||null,price:Number(form.price||0),enabled:!!form.enabled};if(form.id){const{error}=await supabase.from('shipping_settings').update(payload).eq('id',form.id).eq('store_id',storeId);if(error)throw error}else{const{error}=await supabase.from('shipping_settings').insert(payload);if(error)throw error}await load();setModal(false)}catch(e){alert(e.message)}finally{setBusy(false)}}
-  const del=async x=>{if(!confirm(`Hapus ongkir ${x.name}?`))return;const{error}=await supabase.from('shipping_settings').delete().eq('id',x.id).eq('store_id',storeId);if(error)alert(error.message);else load().catch(e=>alert(e.message))}
+  const del=async x=>{if(!(await appConfirm(`Hapus ongkir ${x.name}?`)))return;const{error}=await supabase.from('shipping_settings').delete().eq('id',x.id).eq('store_id',storeId);if(error)alert(error.message);else load().catch(e=>alert(e.message))}
   return <DashboardShell title="Pengaturan Ongkir" subtitle="Kelola ongkir manual untuk satu toko, atau aktifkan RajaOngkir dari Integration Hub.">
     <div className="module-hero tone-shipping"><div><span>SHIPPING CENTER</span><h2>Ongkir manual + RajaOngkir dalam satu alur</h2><p>Gunakan tarif manual untuk pickup/area tertentu, atau sambungkan RajaOngkir untuk kalkulasi checkout berdasarkan tujuan dan berat.</p><Link className="hero-inline-action" to="/owner/integrations"><Settings2/> Atur RajaOngkir</Link></div><div className="module-hero-icon"><Truck/></div></div>
     <div className="toolbar"><div className="search-small"><Search/><input placeholder="Cari nama / area..." value={search} onChange={e=>{setSearch(e.target.value);setPage(1)}}/></div><div className="toolbar-spacer"/><button className="btn-primary" onClick={()=>{setForm(empty);setModal(true)}}><Plus size={15}/>Tambah Ongkir</button></div>

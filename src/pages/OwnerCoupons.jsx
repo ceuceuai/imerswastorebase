@@ -1,3 +1,4 @@
+import { appConfirm } from '../lib/appDialog'
 import DashboardShell from '../components/DashboardShell'
 import { useEffect, useMemo, useState } from 'react'
 import { getOwnerContext, supabase, supabaseEnabled } from '../lib/supabase'
@@ -11,7 +12,7 @@ export default function OwnerCoupons(){
   useEffect(()=>{load().catch(e=>alert(e.message))},[])
   const filtered=useMemo(()=>data.filter(x=>!search||`${x.code} ${x.name||''}`.toLowerCase().includes(search.toLowerCase())),[data,search]);const pages=Math.max(1,Math.ceil(filtered.length/size));const rows=filtered.slice((page-1)*size,page*size)
   const save=async e=>{e.preventDefault();setBusy(true);try{const payload={store_id:storeId,code:form.code.trim().toUpperCase(),name:form.name||null,discount_type:form.discount_type,discount_value:Number(form.discount_value||0),min_order:Number(form.min_order||0),max_discount:form.max_discount?Number(form.max_discount):null,start_at:form.start_at?new Date(form.start_at).toISOString():null,end_at:form.end_at?new Date(form.end_at).toISOString():null,usage_limit:form.usage_limit?Number(form.usage_limit):null,active:!!form.active};if(form.id){const{error}=await supabase.from('coupons').update(payload).eq('id',form.id).eq('store_id',storeId);if(error)throw error}else{const{error}=await supabase.from('coupons').insert(payload);if(error)throw error}await load();setModal(false)}catch(e){alert(e.message)}finally{setBusy(false)}}
-  const del=async x=>{if(!confirm(`Hapus kupon ${x.code}?`))return;const{error}=await supabase.from('coupons').delete().eq('id',x.id).eq('store_id',storeId);if(error)alert(error.message);else load().catch(e=>alert(e.message))}
+  const del=async x=>{if(!(await appConfirm(`Hapus kupon ${x.code}?`)))return;const{error}=await supabase.from('coupons').delete().eq('id',x.id).eq('store_id',storeId);if(error)alert(error.message);else load().catch(e=>alert(e.message))}
   const label=x=>x.discount_type==='percent'?`${x.discount_value}%`:rupiah(x.discount_value)
   return <DashboardShell title="Kupon & Promo" subtitle="Kelola kode promo untuk toko ini. Engine validasi kupon terhubung ke checkout Supabase.">
     <div className="toolbar"><div className="search-small"><Search/><input placeholder="Cari kode / nama kupon..." value={search} onChange={e=>{setSearch(e.target.value);setPage(1)}}/></div><div className="toolbar-spacer"/><button className="btn-primary" onClick={()=>{setForm(empty);setModal(true)}}><Plus size={15}/>Buat Kupon</button></div>

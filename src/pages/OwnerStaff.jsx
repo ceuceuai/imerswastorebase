@@ -1,3 +1,4 @@
+import { appConfirm } from '../lib/appDialog'
 import DashboardShell from '../components/DashboardShell'
 import { useEffect, useMemo, useState } from 'react'
 import { getOwnerContext, supabase, supabaseEnabled } from '../lib/supabase'
@@ -14,7 +15,7 @@ export default function OwnerStaff(){
   const save=async e=>{e.preventDefault();setBusy(true);try{if(!form.email)throw new Error('Email staff wajib diisi.');const result=await invoke({action:'invite',name:form.name,email:form.email,phone:form.phone,role:form.role,permissions:form.permissions,active:form.active!==false,redirect_origin:window.location.origin});alert(result.message);await load();setModal(false)}catch(e){alert(e.message)}finally{setBusy(false)}}
   const resend=async x=>{setBusy(true);try{const result=await invoke({action:'invite',name:x.name,email:x.email,phone:x.phone,role:x.role,permissions:x.permissions,redirect_origin:window.location.origin});alert(result.message);await load()}catch(e){alert(e.message)}finally{setBusy(false)}}
   const setActive=async x=>{setBusy(true);try{const result=await invoke({action:'status',staff_id:x.id,active:!x.active});alert(result.message);await load()}catch(e){alert(e.message)}finally{setBusy(false)}}
-  const del=async x=>{if(!confirm(`Hapus staff ${x.name} dan akses login-nya?`))return;setBusy(true);try{const result=await invoke({action:'delete',staff_id:x.id});alert(result.message);await load()}catch(e){alert(e.message)}finally{setBusy(false)}}
+  const del=async x=>{if(!(await appConfirm(`Hapus staff ${x.name} dan akses login-nya?`)))return;setBusy(true);try{const result=await invoke({action:'delete',staff_id:x.id});alert(result.message);await load()}catch(e){alert(e.message)}finally{setBusy(false)}}
   const togglePerm=p=>setForm({...form,permissions:{...(form.permissions||{}),[p]:!(form.permissions||{})[p]}})
   return <DashboardShell title="Manajemen Kasir & Staff" subtitle="Undang akun staff, atur role, permission, dan akses login untuk satu toko.">
     <div className="module-hero tone-staff"><div><span>STAFF ACCESS</span><h2>Kasir punya akun sendiri, owner tetap pegang kontrol</h2><p>Undangan dikirim melalui Supabase Auth. Nonaktifkan staff kapan saja tanpa berbagi password owner.</p></div><div className="module-hero-icon"><ShieldCheck/></div></div>

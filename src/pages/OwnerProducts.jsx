@@ -1,3 +1,4 @@
+import { appConfirm } from '../lib/appDialog'
 import DashboardShell from '../components/DashboardShell'
 import { demoProducts } from '../data/demo'
 import { asArray, rupiah, slugify } from '../lib/format'
@@ -122,7 +123,7 @@ export default function OwnerProducts() {
     } catch(err) { alert(err.message) } finally { setBusy(false) }
   }
 
-  const del = async p => { if(!confirm(`Hapus ${p.name}?`)) return; if(!supabaseEnabled){ setData(v=>v.filter(x=>x.id!==p.id)); return }; const {error}=await supabase.from('products').delete().eq('id',p.id).eq('store_id',storeId); if(error) alert(error.message); else load().catch(e=>alert(e.message)) }
+  const del = async p => { if(!(await appConfirm(`Hapus ${p.name}?`))) return; if(!supabaseEnabled){ setData(v=>v.filter(x=>x.id!==p.id)); return }; const {error}=await supabase.from('products').delete().eq('id',p.id).eq('store_id',storeId); if(error) alert(error.message); else load().catch(e=>alert(e.message)) }
 
   return <DashboardShell title="Katalog Produk" subtitle="Produk fisik, digital, varian, media URL, HPP, stok, berat dan field transaksi.">
     <div className="module-hero tone-catalog"><div><span>PRODUCT ENGINE</span><h2>Katalog lengkap untuk satu toko</h2><p>Kelola fisik, digital, pulsa/token, varian, satuan, stok dan media tanpa pindah aplikasi.</p></div><div className="module-hero-icon"><Plus/></div></div>
