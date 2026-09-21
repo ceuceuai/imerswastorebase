@@ -26,6 +26,7 @@ export default function LoginPage(){
     name:'iMersWAStore',
     logo:'',
     primary:'#0f67ff',
+    accent:'#0ea5e9',
     tagline:'Belanja Mudah, Untung Setiap Hari',
   })
   const nav=useNavigate()
@@ -33,20 +34,34 @@ export default function LoginPage(){
   useEffect(()=>{
     let alive=true
     async function loadBrand(){
-      if(!supabaseEnabled||!configuredStoreId)return
+      if(!supabaseEnabled)return
       try{
+        // Single-store source of truth: prefer runtime store id, then fall back to VITE_STORE_ID.
+        let storeId=configuredStoreId||''
+        const runtimeRes=await supabase
+          .from('single_store_runtime')
+          .select('store_id')
+          .eq('singleton',true)
+          .maybeSingle()
+        if(!runtimeRes.error&&runtimeRes.data?.store_id)storeId=runtimeRes.data.store_id
+        if(!storeId)return
+
         const [storeRes,brandRes,settingsRes]=await Promise.all([
-          supabase.from('stores').select('name,logo_url,theme_color').eq('id',configuredStoreId).maybeSingle(),
-          supabase.from('brand_settings').select('app_name,logo_url,primary_color').eq('store_id',configuredStoreId).maybeSingle(),
-          supabase.from('store_settings').select('tagline').eq('store_id',configuredStoreId).maybeSingle(),
+          supabase.from('stores').select('name,logo_url,theme_color').eq('id',storeId).maybeSingle(),
+          supabase.from('brand_settings').select('app_name,logo_url,primary_color,secondary_color,dashboard_theme').eq('store_id',storeId).maybeSingle(),
+          supabase.from('store_settings').select('tagline').eq('store_id',storeId).maybeSingle(),
         ])
         if(!alive)return
+        const dashboardTheme=brandRes.data?.dashboard_theme||{}
         setBrand(prev=>({
           name:brandRes.data?.app_name||storeRes.data?.name||prev.name,
           logo:brandRes.data?.logo_url||storeRes.data?.logo_url||'',
-          primary:brandRes.data?.primary_color||storeRes.data?.theme_color||prev.primary,
+          primary:dashboardTheme.primary||brandRes.data?.primary_color||storeRes.data?.theme_color||prev.primary,
+          accent:dashboardTheme.accent||brandRes.data?.secondary_color||dashboardTheme.primary||brandRes.data?.primary_color||prev.accent,
           tagline:settingsRes.data?.tagline||prev.tagline,
         }))
+        const errors=[runtimeRes.error,storeRes.error,brandRes.error,settingsRes.error].filter(Boolean)
+        if(errors.length)console.warn('Sebagian branding login gagal dimuat:',errors.map(x=>x.message).join(' | '))
       }catch(e){
         console.warn('Brand login gagal dimuat:',e)
       }
@@ -55,7 +70,7 @@ export default function LoginPage(){
     return()=>{alive=false}
   },[])
 
-  const pageStyle=useMemo(()=>({'--login-primary':brand.primary||'#0f67ff'}),[brand.primary])
+  const pageStyle=useMemo(()=>({'--login-primary':brand.primary||'#0f67ff','--login-accent':brand.accent||brand.primary||'#0ea5e9'}),[brand.primary,brand.accent])
 
   const submit=async e=>{
     e.preventDefault()
@@ -97,8 +112,8 @@ export default function LoginPage(){
 
     <section className="login-v3-card">
       <div className="login-v3-brand">
-        <div className="login-v3-logo">
-          {brand.logo?<img src={brand.logo} alt={brand.name}/>:<ShoppingBag/>}
+        <div className={`login-v3-logo ${brand.logo?'has-image':'is-fallback'}`}>
+          {brand.logo?<img src={brand.logo} alt={brand.name} onError={()=>setBrand(prev=>({...prev,logo:''}))}/>:<ShoppingBag/>}
         </div>
         <div className="login-v3-brand-copy">
           <strong>{brand.name}</strong>

@@ -65,7 +65,7 @@ export default function DashboardShell({ children, title, subtitle }) {
     <div className="dash-layout">
       <aside className={`dash-sidebar ${open?'open':''}`}>
         <div className="dash-brand">
-          <div className="dash-brand-logo">{logo?<img src={logo} alt={storeName}/>:initials(storeName)}</div>
+          <div className={`dash-brand-logo ${logo?'has-image':'is-fallback'}`}>{logo?<img src={logo} alt={storeName}/>:initials(storeName)}</div>
           <div className="dash-brand-copy"><b>{storeName}</b><small>Single Store Commerce</small></div>
           <button className="dash-close" onClick={()=>setOpen(false)}><X size={18}/></button>
         </div>

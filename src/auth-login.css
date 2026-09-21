@@ -12,3 +12,32 @@
 .login-v3-divider{position:relative;text-align:center;margin:26px 0 17px}.login-v3-divider:before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:#e9eef4}.login-v3-divider span{position:relative;z-index:2;padding:0 11px;background:rgba(255,255,255,.96);color:#a0aabb;font-size:9.5px;font-weight:800}.login-v3-register{display:grid;grid-template-columns:42px 1fr;gap:12px;align-items:center;padding:12px 13px;border:1px solid #e4eaf2;border-radius:15px;background:linear-gradient(135deg,#fafcff,#f5f8fd);transition:.18s ease}.login-v3-register:hover{border-color:color-mix(in srgb,var(--login-primary) 25%,#dbe5f0);background:color-mix(in srgb,var(--login-primary) 4%,#fff);transform:translateY(-1px)}.login-v3-register>span{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:color-mix(in srgb,var(--login-primary) 9%,#fff);color:var(--login-primary)}.login-v3-register>span svg{width:18px;height:18px}.login-v3-register b,.login-v3-register small{display:block}.login-v3-register b{font-size:11.5px;color:#263751}.login-v3-register small{margin-top:3px;font-size:9.8px;line-height:1.4;color:#8895a7}.login-v3-back{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:18px;color:#6d7a8e;font-size:10.5px;font-weight:850;transition:.18s ease}.login-v3-back:hover{color:var(--login-primary)}.login-v3-back svg{width:14px;height:14px}.login-v3-demo{margin-top:15px;padding:10px 11px;border-radius:10px;border:1px solid #ffe2a2;background:#fff8e8;color:#85600d;font-size:10.5px}
 
 @media(max-width:560px){.login-v3{padding:18px 14px;background:linear-gradient(180deg,#f3f7ff 0%,#fff 58%,#f7f4ff 100%)}.login-v3-card{padding:26px 21px;border-radius:22px}.login-v3-heading{margin:24px 0 22px}.login-v3-heading h1{font-size:28px}.login-v3-brand{padding-bottom:20px}.login-v3-options{gap:10px}.login-v3-register small{font-size:9.3px}}
+
+/* =========================================================
+   v6.3 CLEAN BRANDING SYNC
+   Login follows store logo + Primary/Accent theme.
+   ========================================================= */
+.login-v3{--login-accent:#0ea5e9}
+.login-v3-logo.has-image{
+  width:64px;height:64px;overflow:visible;border:0;border-radius:0;
+  background:transparent;box-shadow:none;padding:0;
+}
+.login-v3-logo.has-image img{
+  width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;
+  background:transparent;border:0;border-radius:0;
+}
+.login-v3-logo.is-fallback{
+  background:linear-gradient(145deg,#fff,color-mix(in srgb,var(--login-primary) 8%,#edf4ff));
+}
+.login-v3-submit{
+  background:linear-gradient(100deg,var(--login-primary),var(--login-accent));
+  box-shadow:0 12px 26px color-mix(in srgb,var(--login-primary) 20%,transparent);
+}
+.login-v3-submit:hover:not(:disabled){
+  box-shadow:0 16px 32px color-mix(in srgb,var(--login-primary) 26%,transparent);
+}
+.login-v3-register>span{
+  color:var(--login-primary);
+  background:color-mix(in srgb,var(--login-primary) 9%,#f2f7fb);
+}
+.login-v3-options>a{color:var(--login-primary)}
